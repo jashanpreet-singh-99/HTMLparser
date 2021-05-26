@@ -22,6 +22,7 @@ IS_CLOSING = False
 TAG_STACK = []
 
 ID = {}
+CLASS = {}
 
 comment_close = ''
 
@@ -42,6 +43,11 @@ def process_address_from_stack():
 def process_attribute(attribute, attribute_value):
     if attribute == 'id':
         ID[attribute_value] = process_address_from_stack()
+    elif attribute == 'class':
+        if attribute_value in CLASS.keys():
+            CLASS[attribute_value].append(process_address_from_stack())
+        else:
+            CLASS[attribute_value] = [process_address_from_stack()]
 
 
 for ch in data:
@@ -52,7 +58,8 @@ for ch in data:
         elif ch == '>':
             if attribute_value[-1] == '/':
                 attribute_value = attribute_value[:-1]
-            print("Attribute : ", attribute, " -> ", attribute_value[1:-1])
+            attribute_value = attribute_value[1:-1]
+            print("Attribute : ", attribute, " -> ", attribute_value)
             process_attribute(attribute, attribute_value)
             attribute = ''
             attribute_value = ''
@@ -63,7 +70,8 @@ for ch in data:
                 if len(attribute_special_char) > 0:
                     attribute_value += ch
                     continue
-                print("Attribute : ", attribute, " -> ", attribute_value[1:-1])
+                attribute_value = attribute_value[1:-1]
+                print("Attribute : ", attribute, " -> ", attribute_value)
                 process_attribute(attribute, attribute_value)
                 IS_ATTRIBUTE_VALUE = False
                 attribute = ''
@@ -150,3 +158,4 @@ for ch in data:
         continue
 
 print(ID)
+print(CLASS)
