@@ -1,12 +1,11 @@
 import os
 
-"""
-Read the example file.
-"""
+"""Read the example file."""
 EXAMPLE_FILE = os.path.join(os.getcwd(), "example_2.html")
 example = open(EXAMPLE_FILE, 'r')
 data = example.read()
 
+"""Attribute without."""
 SINGLETON_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
                   'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
 
@@ -36,14 +35,27 @@ attribute_special_char = []
 
 
 def process_address_from_stack():
+    """ Convert the current TAG_STACK to address for faster identification of \
+    coding block while searching.
+    """
     address = '||'.join(TAG_STACK)
     return address
 
 
 def process_attribute(attribute, attribute_value):
     if attribute == 'id':
+        """ store the address of each id element.
+
+        the address can be same for 2 or more elements, hence a check is \
+        implemented later on while fetching the data.
+        """
         ID[attribute_value] = process_address_from_stack()
     elif attribute == 'class':
+        """ store the addresses of all class elements.
+
+        the address can be same for 2 or more elements, hence a check is \
+        implemented later on while fetching the data.
+        """
         if attribute_value in CLASS.keys():
             CLASS[attribute_value].append(process_address_from_stack())
         else:
@@ -52,10 +64,8 @@ def process_attribute(attribute, attribute_value):
 
 for ch in data:
     if IS_ATTRIBUTES:
-        if ch == '/':
-            if IS_ATTRIBUTE_VALUE:
-                attribute_value += ch
-        elif ch == '>':
+        if ch == '>':
+            """Processing for ending tag in attribute value."""
             if attribute_value[-1] == '/':
                 attribute_value = attribute_value[:-1]
             attribute_value = attribute_value[1:-1]
@@ -67,6 +77,9 @@ for ch in data:
             IS_ATTRIBUTE_VALUE = False
         elif IS_ATTRIBUTE_VALUE:
             if ch == ' ':
+                """Space in the Attribute value, possibility of new attributes \
+                or check if it is part of the attribute value.
+                """
                 if len(attribute_special_char) > 0:
                     attribute_value += ch
                     continue
@@ -77,6 +90,7 @@ for ch in data:
                 attribute = ''
                 attribute_value = ''
             elif ch == '"':
+                """Keep track of special char to pevent premature ending."""
                 if len(attribute_special_char) == 0:
                     attribute_special_char.append('"')
                 else:
@@ -85,11 +99,13 @@ for ch in data:
             else:
                 attribute_value += ch
         elif ch == '=':
+            """Change from attribute to attribute value."""
             IS_ATTRIBUTE_VALUE = True
         else:
             attribute += ch
         continue
     if IS_COMMENT:
+        """Process the ch as a comment value."""
         if ch == '-':
             if len(comment) == 0:
                 continue
@@ -97,6 +113,7 @@ for ch in data:
             comment += ch
             continue
         elif ch == '>':
+            """Determine the end of tag."""
             if comment_close == '--':
                 comment = comment[:-2]
                 IS_COMMENT = False
@@ -111,6 +128,7 @@ for ch in data:
                 comment_close = ''
             continue
     if IS_MISC:
+        """Check for deciding whether its comment or DOCTYPE."""
         if ch == '-':
             IS_COMMENT = True
             IS_MISC = False
@@ -122,14 +140,16 @@ for ch in data:
             doctype += ch
         continue
     if IS_TAG:
+        """Check if the char is in tag or misc."""
         if ch == '!':
             IS_MISC = True
             IS_TAG = False
         elif ch == '/':
+            """Declare that the last non singleton tag is closing."""
             IS_CLOSING = True
-            # print("Closing tag.")
         else:
             if ch == ' ':
+                """Declare the end of tag name and start of attributes."""
                 TAG_STACK.append(tag)
                 # print("tag name : ", tag)
                 print(TAG_STACK)
@@ -137,6 +157,7 @@ for ch in data:
                 IS_ATTRIBUTES = True
                 IS_TAG = False
             elif ch == '>':
+                """The closing process of the last open non singleton tag."""
                 if IS_CLOSING:
                     while TAG_STACK[-1] in SINGLETON_TAGS:
                         TAG_STACK.pop()
@@ -145,8 +166,8 @@ for ch in data:
                         TAG_STACK.pop()
                         IS_CLOSING = False
                 else:
+                    """If the tag has no attributes and is still open."""
                     TAG_STACK.append(tag)
-                    # print("tag name : ", tag)
                 print(TAG_STACK)
                 tag = ''
                 IS_TAG = False
@@ -154,6 +175,7 @@ for ch in data:
                 tag += ch
         continue
     if ch == '<':
+        """Declare starting of a tag related process."""
         IS_TAG = True
         continue
 
