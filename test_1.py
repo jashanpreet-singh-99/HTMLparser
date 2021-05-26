@@ -20,8 +20,10 @@ IS_ATTRIBUTE_VALUE = False
 IS_CLOSING = False
 
 TAG_STACK = []
-comment_close = ''
 
+ID = {}
+
+comment_close = ''
 
 tag = ''
 doctype = ''
@@ -30,6 +32,17 @@ attribute = ''
 attribute_value = ''
 attribute_closer = ''
 attribute_special_char = []
+
+
+def process_address_from_stack():
+    address = '||'.join(TAG_STACK)
+    return address
+
+
+def process_attribute(attribute, attribute_value):
+    if attribute == 'id':
+        ID[attribute_value] = process_address_from_stack()
+
 
 for ch in data:
     if IS_ATTRIBUTES:
@@ -40,6 +53,7 @@ for ch in data:
             if attribute_value[-1] == '/':
                 attribute_value = attribute_value[:-1]
             print("Attribute : ", attribute, " -> ", attribute_value[1:-1])
+            process_attribute(attribute, attribute_value)
             attribute = ''
             attribute_value = ''
             IS_ATTRIBUTES = False
@@ -50,6 +64,7 @@ for ch in data:
                     attribute_value += ch
                     continue
                 print("Attribute : ", attribute, " -> ", attribute_value[1:-1])
+                process_attribute(attribute, attribute_value)
                 IS_ATTRIBUTE_VALUE = False
                 attribute = ''
                 attribute_value = ''
@@ -133,3 +148,5 @@ for ch in data:
     if ch == '<':
         IS_TAG = True
         continue
+
+print(ID)
