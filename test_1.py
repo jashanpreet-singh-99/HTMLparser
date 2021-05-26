@@ -22,12 +22,14 @@ IS_CLOSING = False
 TAG_STACK = []
 comment_close = ''
 
+
 tag = ''
 doctype = ''
 comment = ''
 attribute = ''
 attribute_value = ''
 attribute_closer = ''
+attribute_special_char = []
 
 for ch in data:
     if IS_ATTRIBUTES:
@@ -44,10 +46,19 @@ for ch in data:
             IS_ATTRIBUTE_VALUE = False
         elif IS_ATTRIBUTE_VALUE:
             if ch == ' ':
+                if len(attribute_special_char) > 0:
+                    attribute_value += ch
+                    continue
                 print("Attribute : ", attribute, " -> ", attribute_value[1:-1])
                 IS_ATTRIBUTE_VALUE = False
                 attribute = ''
                 attribute_value = ''
+            elif ch == '"':
+                if len(attribute_special_char) == 0:
+                    attribute_special_char.append('"')
+                else:
+                    attribute_special_char.pop()
+                attribute_value += ch
             else:
                 attribute_value += ch
         elif ch == '=':
