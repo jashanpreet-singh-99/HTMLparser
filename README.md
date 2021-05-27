@@ -6,7 +6,7 @@
 
 1. Convert to OOP.
 2. Save into csv format for local storage and mobility.
-3. Processing data inside the non singleton tags.
-4. Structured storage of tag attributes
-5. Searching a given section or element.
-6. Later checks for id or class specific element. 
+3. Structured storage of tag attributes
+4. Searching a given section or element.
+5. Later checks for id or class specific element.
+6. Fix comment removal inside tag_inside_value
