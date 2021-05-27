@@ -91,6 +91,9 @@ for ch in data:
             if TAG_STACK[-1] in SINGLETON_TAGS:
                 TAG_STACK.pop()
                 print("REMOVE : ", TAG_STACK)
+            else:
+                if TAG_STACK[-1] in TEXT_TAGS:
+                    IS_TAG_INSIDE = True
         elif IS_ATTRIBUTE_VALUE:
             if ch == ' ':
                 """Space in the Attribute value, possibility of new attributes \
