@@ -76,6 +76,9 @@ for ch in data:
     if IS_ATTRIBUTES:
         if ch == '>':
             """Processing for ending tag in attribute value."""
+            if len(attribute_special_char) > 0:
+                attribute_value += ch
+                continue
             if attribute_value[-1] == '/':
                 attribute_value = attribute_value[:-1]
             attribute_value = attribute_value[1:-1]
