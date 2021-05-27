@@ -75,6 +75,9 @@ for ch in data:
             attribute_value = ''
             IS_ATTRIBUTES = False
             IS_ATTRIBUTE_VALUE = False
+            if TAG_STACK[-1] in SINGLETON_TAGS:
+                TAG_STACK.pop()
+                print("REMOVE : ", TAG_STACK)
         elif IS_ATTRIBUTE_VALUE:
             if ch == ' ':
                 """Space in the Attribute value, possibility of new attributes \
@@ -151,23 +154,24 @@ for ch in data:
             if ch == ' ':
                 """Declare the end of tag name and start of attributes."""
                 TAG_STACK.append(tag)
-                # print("tag name : ", tag)
-                print(TAG_STACK)
+                print("ADD : ", TAG_STACK)
                 tag = ''
                 IS_ATTRIBUTES = True
                 IS_TAG = False
             elif ch == '>':
                 """The closing process of the last open non singleton tag."""
                 if IS_CLOSING:
-                    while TAG_STACK[-1] in SINGLETON_TAGS:
-                        TAG_STACK.pop()
                     if TAG_STACK[-1] == tag:
                         print("Closing opened tag : ", tag)
                         TAG_STACK.pop()
                         IS_CLOSING = False
                 else:
                     """If the tag has no attributes and is still open."""
-                    TAG_STACK.append(tag)
+                    if tag not in SINGLETON_TAGS:
+                        TAG_STACK.append(tag)
+                        print("ADD : ", TAG_STACK)
+                    else:
+                        TAG_STACK.pop()
                 print(TAG_STACK)
                 tag = ''
                 IS_TAG = False
