@@ -30,6 +30,7 @@ ID = {}
 CLASS = {}
 
 comment_close = ''
+comment_count = 0
 
 tag = ''
 doctype = ''
@@ -127,7 +128,8 @@ for ch in data:
     if IS_COMMENT:
         """Process the ch as a comment value."""
         if ch == '-':
-            if len(comment) == 0:
+            if comment_count == 0:
+                comment_count += 1
                 continue
             comment_close += ch
             comment += ch
@@ -139,6 +141,8 @@ for ch in data:
                 IS_COMMENT = False
                 print("Comment : ", comment)
                 comment = ''
+                comment_close = ''
+                comment_count = 0
             else:
                 comment += ch
             continue
@@ -211,10 +215,12 @@ for ch in data:
                 open_tag_closer += ch
             tag_inside_value += ch
         elif ch == '!':
+            tag_inside_value += ch
+        elif ch == '-':
             if len(open_tag_closer) == 1:
                 IS_COMMENT = True
                 open_tag_closer = ''
-                tag_inside_value = tag_inside_value[:-1]
+                tag_inside_value = tag_inside_value[:-2]
             else:
                 tag_inside_value += ch
         else:

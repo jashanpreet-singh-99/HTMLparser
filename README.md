@@ -9,4 +9,3 @@
 3. Structured storage of tag attributes
 4. Searching a given section or element.
 5. Later checks for id or class specific element.
-6. blank comment issue.
