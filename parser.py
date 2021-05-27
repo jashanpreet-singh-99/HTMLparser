@@ -5,9 +5,13 @@ EXAMPLE_FILE = os.path.join(os.getcwd(), "html_example", "example_2.html")
 example = open(EXAMPLE_FILE, 'r')
 data = example.read()
 
-"""Attribute without."""
+"""Tags without closing tag."""
 SINGLETON_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
                   'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
+
+"""Text only tags"""
+TEXT_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'title', 'label', 'p', 'a']
+
 
 IS_TAG = False
 IS_MISC = False
@@ -17,6 +21,8 @@ IS_ATTRIBUTES = False
 IS_ATTRIBUTE_VALUE = False
 
 IS_CLOSING = False
+
+IS_TAG_INSIDE = False
 
 TAG_STACK = []
 
@@ -32,6 +38,10 @@ attribute = ''
 attribute_value = ''
 attribute_closer = ''
 attribute_special_char = []
+
+tag_inside_value = ''
+
+open_tag_closer = ''
 
 
 def process_address_from_stack():
@@ -165,7 +175,7 @@ for ch in data:
                 """The closing process of the last open non singleton tag."""
                 if IS_CLOSING:
                     if TAG_STACK[-1] == tag:
-                        print("Closing opened tag : ", tag)
+                        print("REMOVE : ", TAG_STACK)
                         TAG_STACK.pop()
                         IS_CLOSING = False
                 else:
@@ -173,7 +183,10 @@ for ch in data:
                     if tag not in SINGLETON_TAGS:
                         TAG_STACK.append(tag)
                         print("ADD : ", TAG_STACK)
+                        if tag in TEXT_TAGS:
+                            IS_TAG_INSIDE = True
                     else:
+                        print("REMOVE : ", TAG_STACK)
                         TAG_STACK.pop()
                 print(TAG_STACK)
                 tag = ''
@@ -182,6 +195,31 @@ for ch in data:
                 tag += ch
         continue
         # IS_TAG
+    if IS_TAG_INSIDE:
+        if ch == '<':
+            if len(open_tag_closer) == 0:
+                open_tag_closer = ch
+            tag_inside_value += ch
+        elif ch == '/':
+            if open_tag_closer == '<':
+                open_tag_closer += ch
+            tag_inside_value += ch
+        else:
+            if open_tag_closer == '</' and ch == TAG_STACK[-1][0]:
+                """The open tag is closing."""
+                tag_inside_value = tag_inside_value[:-2]
+                print("TAG INSIDE VALUE : ", tag_inside_value)
+                IS_CLOSING = True
+                IS_TAG = True
+                IS_TAG_INSIDE = False
+                tag_inside_value = ''
+                tag = ch
+            else:
+                tag_inside_value += ch
+                if len(open_tag_closer) > 0:
+                    open_tag_closer = ''
+        continue
+        # / IS_TAG_INSIDE
     if ch == '<':
         """Declare starting of a tag related process."""
         IS_TAG = True
