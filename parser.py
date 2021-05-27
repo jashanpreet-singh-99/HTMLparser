@@ -107,6 +107,7 @@ for ch in data:
         else:
             attribute += ch
         continue
+        # / IS_ATTRIBUTES
     if IS_COMMENT:
         """Process the ch as a comment value."""
         if ch == '-':
@@ -130,6 +131,7 @@ for ch in data:
             if len(comment_close) > 0:
                 comment_close = ''
             continue
+        # / IS_COMMENT
     if IS_MISC:
         """Check for deciding whether its comment or DOCTYPE."""
         if ch == '-':
@@ -142,6 +144,7 @@ for ch in data:
         else:
             doctype += ch
         continue
+        # / IS_MISC
     if IS_TAG:
         """Check if the char is in tag or misc."""
         if ch == '!':
@@ -178,10 +181,12 @@ for ch in data:
             else:
                 tag += ch
         continue
+        # IS_TAG
     if ch == '<':
         """Declare starting of a tag related process."""
         IS_TAG = True
         continue
+        # / '<'
 
 print(ID)
 print(CLASS)
