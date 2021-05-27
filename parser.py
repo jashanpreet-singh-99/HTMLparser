@@ -210,6 +210,13 @@ for ch in data:
             if open_tag_closer == '<':
                 open_tag_closer += ch
             tag_inside_value += ch
+        elif ch == '!':
+            if len(open_tag_closer) == 1:
+                IS_COMMENT = True
+                open_tag_closer = ''
+                tag_inside_value = tag_inside_value[:-1]
+            else:
+                tag_inside_value += ch
         else:
             if open_tag_closer == '</' and ch == TAG_STACK[-1][0]:
                 """The open tag is closing."""

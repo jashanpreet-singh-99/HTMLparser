@@ -9,4 +9,4 @@
 3. Structured storage of tag attributes
 4. Searching a given section or element.
 5. Later checks for id or class specific element.
-6. Fix comment removal inside tag_inside_value
+6. blank comment issue.
