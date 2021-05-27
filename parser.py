@@ -1,4 +1,6 @@
 import os
+import numpy as np
+import pandas as pd
 
 """Read the example file."""
 EXAMPLE_FILE = os.path.join(os.getcwd(), "html_example", "example_2.html")
@@ -26,8 +28,7 @@ IS_TAG_INSIDE = False
 
 TAG_STACK = []
 
-ID = {}
-CLASS = {}
+TAG_ATTRIBUTES = {}
 
 comment_close = ''
 comment_count = 0
@@ -44,6 +45,12 @@ tag_inside_value = ''
 
 open_tag_closer = ''
 
+"""Create the base index table."""
+HTML_INDEX = pd.DataFrame()
+
+"""HTML_INDEX save location."""
+HTML_INDEX_DIR = os.path.join(os.getcwd(), "html_index.csv")
+
 
 def process_address_from_stack():
     """ Convert the current TAG_STACK to address for faster identification of \
@@ -53,24 +60,16 @@ def process_address_from_stack():
     return address
 
 
+def save_attributes_into_db(dict_data):
+    global HTML_INDEX
+    path = process_address_from_stack()
+    dict_data['path'] = path
+    db_entry = pd.DataFrame([dict_data])
+    HTML_INDEX = HTML_INDEX.append(db_entry)
+
+
 def process_attribute(attribute, attribute_value):
-    if attribute == 'id':
-        """ store the address of each id element.
-
-        the address can be same for 2 or more elements, hence a check is \
-        implemented later on while fetching the data.
-        """
-        ID[attribute_value] = process_address_from_stack()
-    elif attribute == 'class':
-        """ store the addresses of all class elements.
-
-        the address can be same for 2 or more elements, hence a check is \
-        implemented later on while fetching the data.
-        """
-        if attribute_value in CLASS.keys():
-            CLASS[attribute_value].append(process_address_from_stack())
-        else:
-            CLASS[attribute_value] = [process_address_from_stack()]
+    TAG_ATTRIBUTES[attribute] = attribute_value
 
 
 for ch in data:
@@ -85,6 +84,8 @@ for ch in data:
             attribute_value = attribute_value[1:-1]
             print("Attribute : ", attribute, " -> ", attribute_value)
             process_attribute(attribute, attribute_value)
+            save_attributes_into_db(TAG_ATTRIBUTES)
+            TAG_ATTRIBUTES = {}
             attribute = ''
             attribute_value = ''
             IS_ATTRIBUTES = False
@@ -245,5 +246,5 @@ for ch in data:
         continue
         # / '<'
 
-print(ID)
-print(CLASS)
+print(HTML_INDEX.columns)
+HTML_INDEX.to_csv(HTML_INDEX_DIR)
