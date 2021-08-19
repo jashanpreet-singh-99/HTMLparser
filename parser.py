@@ -246,5 +246,17 @@ for ch in data:
         continue
         # / '<'
 
+"""
+Searching for elements
+"""
+
+def get_class(class_name):
+    pass
+
+
+def get_elements(element_type):
+    pass
+
+
 print(HTML_INDEX.columns)
 HTML_INDEX.to_csv(HTML_INDEX_DIR)
