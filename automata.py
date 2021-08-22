@@ -1,28 +1,33 @@
+import re
+
 class State:
 
-    tag = "T_"
-    transition = {}
-
     def __init__(self, state_count):
-        self.tag += str(state_count)
+        self.tag = "T_" + str(state_count)
+        self.transition = {}
 
     def add_path(self, path, condition):
         self.transition[path] = condition
 
+    def next_transition(self, input):
+        for path,condition in self.transition.items():
+            if re.match(condition, input):
+                print(path, input, ": PASS :", self.tag, condition)
+                return "T_" + path.split('_')[-1]
+            else:
+                print(path, input, ": FAILED :", self.tag, condition)
+        print("Deadlock no transition for input :", input, self.tag)
+
     def __str__(self):
-        return self.tag
+        return self.tag + str(self.transition)
 
 
 class Automata:
 
-    STATE_LIST = {}
-
-    STARTPOINT = 0
-    ENDPOINT = 0
-
-    CUR_STATE = 0
-
     def __init__(self):
+        self.STATE_LIST = {}
+        self.ENDPOINT = 0
+        self.CUR_STATE = 0
         self.STARTPOINT = self.create_state()
 
     def create_state(self, state_count=-1):
@@ -53,7 +58,7 @@ class Automata:
             print("Parent State not present. Please create the parent state before adding the transition.")
             return
         else:
-            self.STATE_LIST[from_tag].add_path("0_0", condition)
+            self.STATE_LIST[from_tag].add_path(from_tag.split("_")[-1] + "_" + to_tag.split("_")[-1], condition)
         if to_tag not in self.STATE_LIST.keys():
             print("Travelling end point not present, Creating one.")
             self.create_state(to_tag)
@@ -75,6 +80,9 @@ class Automata:
     def run(self, input):
         self.CUR_STATE = self.STARTPOINT
 
+        for ch in input:
+            next_state = self.CUR_STATE.next_transition(ch)
+            self.CUR_STATE = self.STATE_LIST[next_state]
 
         if self.CUR_STATE == self.ENDPOINT:
             print("The input data passed the checks, system is compatible.")
