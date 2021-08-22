@@ -13,6 +13,6 @@ autoM.add_transition("T_4", "T_4", "^[^\"]$")
 autoM.add_transition("T_4", "T_0", "^[\"]$")
 autoM.set_endpoint("T_5")
 
-autoM.run('nothing random <tag attribute="attribute_value" attribute_2="attribute_value_2">')
-
 print(autoM)
+
+autoM.run('nothing random <tag attribute="attribute_value" attribute_2="attribute_value_2">')
