@@ -32,6 +32,8 @@ def print_open_tag(ch):
     global open_tag
     if open_tag == " ":
         return
+    # dummy fix for bug < SHOULD BE REMOVED FOR FINAL RELEASE >
+    open_tag.replace("<", "")
     if open_tag.strip() in single_tags:
         close_single_tag(open_tag.strip())
     else:
