@@ -8,11 +8,20 @@ open_tag = " "
 close_tag = " "
 doc_type = " "
 comment = " "
+attribute = " "
+attribute_value = " "
+
+tag_content = " "
+
+single_tags = ['meta', 'link']
 
 def add_open_tag(ch):
     global open_tag
     open_tag += ch
 
+
+def close_single_tag(ch):
+    print("Single_tag :", ch)
 
 def add_close_tag(ch):
     global close_tag
@@ -23,7 +32,10 @@ def print_open_tag(ch):
     global open_tag
     if open_tag == " ":
         return
-    print("Last open TAG value : < :", open_tag)
+    if open_tag.strip() in single_tags:
+        close_single_tag(open_tag.strip())
+    else:
+        print("Open TAG : < :", open_tag)
     open_tag = " "
 
 
@@ -31,7 +43,7 @@ def print_close_tag(ch):
     global close_tag
     if close_tag == " ":
         return
-    print("Last close TAG : </ :", close_tag)
+    print("Close TAG : </ :", close_tag)
     close_tag = " "
 
 
@@ -66,10 +78,50 @@ def adjust_comment(ch):
     if comment[-1] == "-":
         comment = comment[:-1]
 
+
+def add_attribute(ch):
+    global attribute
+    attribute += ch
+
+
+def print_attribute(ch):
+    global attribute
+    if attribute == " ":
+        return
+    print("Attribute : ", attribute)
+    attribute = " "
+
+
+def add_attribute_value(ch):
+    global attribute_value
+    attribute_value += ch
+
+
+def print_attribute_value(ch):
+    global attribute_value
+    if attribute_value == " ":
+        return
+    print("Attribute Value : ", attribute_value)
+    attribute_value = " "
+
+
+def add_tag_content(ch):
+    global tag_content
+    tag_content += ch
+
+
+def print_tag_content(ch):
+    global tag_content
+    if tag_content == " ":
+        return
+    print("Tag content : ", open_tag, ":", tag_content)
+    tag_content = " "
+
+
 # Dummy data
-autoM.add_transition("T_0", "T_0", "^[^<]$")
+autoM.add_transition("T_0", "T_0", "^[^<]$", add_tag_content)
 # Tag opended
-autoM.add_transition("T_0", "T_1", "^[<]$")
+autoM.add_transition("T_0", "T_1", "^[<]$", print_tag_content)
 
 # Tag recorder
 autoM.add_transition("T_1", "T_1", "^[^\s>/!]$", add_open_tag)
@@ -82,25 +134,25 @@ autoM.add_transition("T_1", "T_11", "^[/]$")
 # Comment Processing start or doc type
 autoM.add_transition("T_1", "T_6", "^[!]$")
 
-# Attribute Value
-autoM.add_transition("T_2", "T_2", "^[^=>]$")
+# Attribute recorder
+autoM.add_transition("T_2", "T_2", "^[^=>]$", add_attribute)
 # tag closed "Unexpected"
 autoM.add_transition("T_2", "T_5", "^[>]$")
-# Attribute recorder
-autoM.add_transition("T_2", "T_3", "^[=]$")
+# Attribute end
+autoM.add_transition("T_2", "T_3", "^[=]$", print_attribute )
 
 # Attribute value start
 autoM.add_transition("T_3", "T_4", "^[\"]$")
 
 # Attribute value recorder
-autoM.add_transition("T_4", "T_4", "^[^\"]$")
+autoM.add_transition("T_4", "T_4", "^[^\"]$", add_attribute_value)
 # Attribute value end
-autoM.add_transition("T_4", "T_1", "^[\"]$")
+autoM.add_transition("T_4", "T_1", "^[\"]$", print_attribute_value)
 
 # Remove space in between tags
 autoM.add_transition("T_5", "T_5", "^[\s]$")
 # Unexpected text between tags
-autoM.add_transition("T_5", "T_0", "^[^<\s]$")
+autoM.add_transition("T_5", "T_0", "^[^<\s]$", add_tag_content)
 # New tag started
 autoM.add_transition("T_5", "T_1", "^[<]$")
 
@@ -140,7 +192,7 @@ print(autoM)
 #autoM.run('nothing random <tag attribute="attribute_value" attribute_2="attribute_value_2">')
 
 """Read the example file."""
-EXAMPLE_FILE = os.path.join(os.getcwd(), "html_example", "example_1.html")
+EXAMPLE_FILE = os.path.join(os.getcwd(), "html_example", "example_2.html")
 example = open(EXAMPLE_FILE, 'r')
 data = example.read()
 
