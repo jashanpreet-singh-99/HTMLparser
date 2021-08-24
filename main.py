@@ -13,7 +13,8 @@ attribute_value = " "
 
 tag_content = " "
 
-single_tags = ['meta', 'link']
+SINGLE_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
+                  'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
 
 def add_open_tag(ch):
     global open_tag
@@ -34,7 +35,7 @@ def print_open_tag(ch):
         return
     # dummy fix for bug < SHOULD BE REMOVED FOR FINAL RELEASE >
     open_tag.replace("<", "")
-    if open_tag.strip() in single_tags:
+    if open_tag.strip() in SINGLE_TAGS:
         close_single_tag(open_tag.strip())
     else:
         print("Open TAG : < :", open_tag)
