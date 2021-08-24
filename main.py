@@ -39,13 +39,15 @@ autoM.add_transition("T_0", "T_0", "^[^<]$")
 autoM.add_transition("T_0", "T_1", "^[<]$")
 
 # Tag recorder
-autoM.add_transition("T_1", "T_1", "^[^\s>/]$", add_open_tag)
+autoM.add_transition("T_1", "T_1", "^[^\s>/!]$", add_open_tag)
 # Attribute Processing
 autoM.add_transition("T_1", "T_2", "^[\s]$", print_open_tag)
 # Single tag closing
 autoM.add_transition("T_1", "T_5", "^[>]$", print_open_tag)
 # Close tag Processing
 autoM.add_transition("T_1", "T_11", "^[/]$")
+# Comment Processing start or doc type
+autoM.add_transition("T_1", "T_6", "^[!]$")
 
 # Attribute Value
 autoM.add_transition("T_2", "T_2", "^[^=>]$")
@@ -68,6 +70,29 @@ autoM.add_transition("T_5", "T_5", "^[\s]$")
 autoM.add_transition("T_5", "T_0", "^[^<\s]$")
 # New tag started
 autoM.add_transition("T_5", "T_1", "^[<]$")
+
+# Doc type Recorder
+autoM.add_transition("T_6", "T_6", "^[^->]$")
+# Doc type end
+autoM.add_transition("T_6", "T_5", "^[>]$")
+# if Comment start
+autoM.add_transition("T_6", "T_7", "^[-]$")
+
+# Confirm comment
+autoM.add_transition("T_7", "T_8", "^[-]$")
+
+# Comment Recorder
+autoM.add_transition("T_8", "T_8", "^[^-]$")
+# Comment canel check
+autoM.add_transition("T_8", "T_9", "^[-]$")
+
+# Comment Recorder continue
+autoM.add_transition("T_9", "T_8", "^[^-]$")
+# Comment cancel confirmed
+autoM.add_transition("T_9", "T_10", "^[-]$")
+
+# Comment canel complete
+autoM.add_transition("T_10", "T_5", "^[>]$")
 
 # Close tag recorder
 autoM.add_transition("T_11", "T_11", "^[^>]$", add_close_tag)
