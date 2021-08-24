@@ -6,6 +6,8 @@ autoM = Automata()
 
 open_tag = " "
 close_tag = " "
+doc_type = " "
+comment = " "
 
 def add_open_tag(ch):
     global open_tag
@@ -32,6 +34,37 @@ def print_close_tag(ch):
     print("Last close TAG : </ :", close_tag)
     close_tag = " "
 
+
+def add_doc_type(ch):
+    global doc_type
+    doc_type += ch
+
+
+def print_doc_type(ch):
+    global doc_type
+    if doc_type == " ":
+        return
+    print("DOCTYPE :: ", doc_type[8:])
+    doc_type = " "
+
+
+def add_comment(ch):
+    global comment
+    comment += ch
+
+
+def print_comment(ch):
+    global comment
+    if comment == " ":
+        return
+    print("COMMENT : ", comment)
+    comment = " "
+
+
+def adjust_comment(ch):
+    global comment
+    if comment[-1] == "-":
+        comment = comment[:-1]
 
 # Dummy data
 autoM.add_transition("T_0", "T_0", "^[^<]$")
@@ -72,9 +105,9 @@ autoM.add_transition("T_5", "T_0", "^[^<\s]$")
 autoM.add_transition("T_5", "T_1", "^[<]$")
 
 # Doc type Recorder
-autoM.add_transition("T_6", "T_6", "^[^->]$")
+autoM.add_transition("T_6", "T_6", "^[^->]$", add_doc_type)
 # Doc type end
-autoM.add_transition("T_6", "T_5", "^[>]$")
+autoM.add_transition("T_6", "T_5", "^[>]$", print_doc_type)
 # if Comment start
 autoM.add_transition("T_6", "T_7", "^[-]$")
 
@@ -82,17 +115,17 @@ autoM.add_transition("T_6", "T_7", "^[-]$")
 autoM.add_transition("T_7", "T_8", "^[-]$")
 
 # Comment Recorder
-autoM.add_transition("T_8", "T_8", "^[^-]$")
+autoM.add_transition("T_8", "T_8", "^[^-]$", add_comment)
 # Comment canel check
-autoM.add_transition("T_8", "T_9", "^[-]$")
+autoM.add_transition("T_8", "T_9", "^[-]$", add_comment)
 
 # Comment Recorder continue
-autoM.add_transition("T_9", "T_8", "^[^-]$")
+autoM.add_transition("T_9", "T_8", "^[^-]$", add_comment)
 # Comment cancel confirmed
-autoM.add_transition("T_9", "T_10", "^[-]$")
+autoM.add_transition("T_9", "T_10", "^[-]$", adjust_comment)
 
 # Comment canel complete
-autoM.add_transition("T_10", "T_5", "^[>]$")
+autoM.add_transition("T_10", "T_5", "^[>]$", print_comment)
 
 # Close tag recorder
 autoM.add_transition("T_11", "T_11", "^[^>]$", add_close_tag)
