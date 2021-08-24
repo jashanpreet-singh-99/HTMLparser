@@ -6,16 +6,21 @@ class State:
         self.tag = "T_" + str(state_count)
         self.transition = {}
 
-    def add_path(self, path, condition):
-        self.transition[path] = condition
+    def add_path(self, path, condition, action):
+        self.transition[path] = (condition, action)
 
     def next_transition(self, input):
-        for path,condition in self.transition.items():
+        for path,value in self.transition.items():
+            condition = value[0]
+            action = value[1]
             if re.match(condition, input):
-                print(path, input, ": PASS :", self.tag, condition)
+                #print(path, input, ": PASS :", self.tag, condition, action)
+                if action:
+                    action(input)
                 return "T_" + path.split('_')[-1]
             else:
-                print(path, input, ": FAILED :", self.tag, condition)
+                pass
+                #print(path, input, ": FAILED :", self.tag, condition)
         print("Deadlock no transition for input :", input, self.tag)
 
     def __str__(self):
@@ -53,12 +58,12 @@ class Automata:
             self.STATE_LIST["T_" + str(state_count)] = State(state_count)
         return self.STATE_LIST["T_"+str(state_count)]
 
-    def add_transition(self, from_tag, to_tag, condition):
+    def add_transition(self, from_tag, to_tag, condition, function=None):
         if from_tag not in self.STATE_LIST.keys():
             print("Parent State not present. Please create the parent state before adding the transition.")
             return
         else:
-            self.STATE_LIST[from_tag].add_path(from_tag.split("_")[-1] + "_" + to_tag.split("_")[-1], condition)
+            self.STATE_LIST[from_tag].add_path(from_tag.split("_")[-1] + "_" + to_tag.split("_")[-1], condition, function)
         if to_tag not in self.STATE_LIST.keys():
             print("Travelling end point not present, Creating one.")
             self.create_state(to_tag)
