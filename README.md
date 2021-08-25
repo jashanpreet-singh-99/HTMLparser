@@ -8,3 +8,4 @@
 2. Fix for extra '<' character before actual closing tag in content based.
 3. Searching a given section or element.
 4. Later checks for id or class specific element.
+5. Change the cur_tag_path to list instead os string.

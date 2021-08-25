@@ -3,8 +3,6 @@ import os
 import pandas as pd
 from automata import Automata
 
-autoM = Automata()
-
 open_tag = " "
 close_tag = " "
 doc_type = " "
@@ -21,6 +19,8 @@ cur_tag_path = ""
 
 SINGLE_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
                   'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
+
+COLUMNS = ["path", "attributes", "attribute_values", "tag_content"]
 
 def add_open_tag(ch):
     global open_tag
@@ -153,7 +153,9 @@ def print_tag_content(ch):
     print("Tag content : ", open_tag, ":", tag_content)
     tag_content = " "
 
+parsed_html_db = pd.DataFrame()
 
+autoM = Automata()
 # Dummy data
 autoM.add_transition("T_0", "T_0", "^[^<]$", add_tag_content)
 # Tag opended
