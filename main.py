@@ -1,5 +1,6 @@
 import re
 import os
+import pandas as pd
 from automata import Automata
 
 autoM = Automata()
@@ -11,7 +12,12 @@ comment = " "
 attribute = " "
 attribute_value = " "
 
+attribute_list = []
+attribute_value_list = []
+
 tag_content = " "
+
+cur_tag_path = ""
 
 SINGLE_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
                   'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
@@ -22,7 +28,15 @@ def add_open_tag(ch):
 
 
 def close_single_tag(ch):
-    print("Single_tag :", ch)
+    global cur_tag_path
+    print("Closing Single_tag :", ch)
+    cur_tag_path = "|".join(ch) + "|"
+
+
+def add_single_tag(ch):
+    global cur_tag_path
+    cur_tag_path += ch + "|"
+    print("Added Single_tag :", ch, cur_tag_path)
 
 def add_close_tag(ch):
     global close_tag
@@ -30,23 +44,40 @@ def add_close_tag(ch):
 
 
 def print_open_tag(ch):
-    global open_tag
+    global open_tag, cur_tag_path, attribute_list, attribute_value_list
     if open_tag == " ":
         return
     # dummy fix for bug < SHOULD BE REMOVED FOR FINAL RELEASE >
     open_tag.replace("<", "")
     if open_tag.strip() in SINGLE_TAGS:
-        close_single_tag(open_tag.strip())
+        add_single_tag(open_tag.strip())
     else:
         print("Open TAG : < :", open_tag)
+        cur_tag_path += open_tag + "|"
     open_tag = " "
 
+def print_open_tag_end(ch):
+    global open_tag, cur_tag_path, attribute_list, attribute_value_list
+    if len(attribute_list) > 0:
+        print(cur_tag_path, attribute_list, attribute_value_list)
+    if cur_tag_path.split("|")[-2].strip() in SINGLE_TAGS:
+        close_single_tag(cur_tag_path.split("|")[:-2])
+    else:
+        if open_tag != " ":
+            open_tag.replace("<", "")
+            print("Open TAG : < :", open_tag)
+            cur_tag_path += open_tag + "|"
+            open_tag = " "
+    attribute_list = []
+    attribute_value_list = []
 
 def print_close_tag(ch):
-    global close_tag
+    global close_tag, cur_tag_path
     if close_tag == " ":
         return
     print("Close TAG : </ :", close_tag)
+    if cur_tag_path.split("|")[-2].strip() == close_tag.strip():
+        cur_tag_path = "|".join(cur_tag_path.split("|")[:-2]) + "|"
     close_tag = " "
 
 
@@ -88,10 +119,11 @@ def add_attribute(ch):
 
 
 def print_attribute(ch):
-    global attribute
+    global attribute, attribute_list
     if attribute == " ":
         return
     print("Attribute : ", attribute)
+    attribute_list.append(attribute)
     attribute = " "
 
 
@@ -101,10 +133,11 @@ def add_attribute_value(ch):
 
 
 def print_attribute_value(ch):
-    global attribute_value
+    global attribute_value, attribute_value_list
     if attribute_value == " ":
         return
     print("Attribute Value : ", attribute_value)
+    attribute_value_list.append(attribute_value)
     attribute_value = " "
 
 
@@ -131,7 +164,7 @@ autoM.add_transition("T_1", "T_1", "^[^\s>/!]$", add_open_tag)
 # Attribute Processing
 autoM.add_transition("T_1", "T_2", "^[\s]$", print_open_tag)
 # Single tag closing
-autoM.add_transition("T_1", "T_5", "^[>]$", print_open_tag)
+autoM.add_transition("T_1", "T_5", "^[>]$", print_open_tag_end)
 # Close tag Processing
 autoM.add_transition("T_1", "T_11", "^[/]$")
 # Comment Processing start or doc type
@@ -140,7 +173,7 @@ autoM.add_transition("T_1", "T_6", "^[!]$")
 # Attribute recorder
 autoM.add_transition("T_2", "T_2", "^[^=>]$", add_attribute)
 # tag closed "Unexpected"
-autoM.add_transition("T_2", "T_5", "^[>]$")
+autoM.add_transition("T_2", "T_5", "^[>]$", print_open_tag_end)
 # Attribute end
 autoM.add_transition("T_2", "T_3", "^[=]$", print_attribute )
 
