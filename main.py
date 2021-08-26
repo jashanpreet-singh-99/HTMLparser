@@ -57,9 +57,14 @@ def print_open_tag(ch):
     open_tag = " "
 
 def print_open_tag_end(ch):
+    global parsed_html_db
     global open_tag, cur_tag_path, attribute_list, attribute_value_list
     if len(attribute_list) > 0:
         print(cur_tag_path, attribute_list, attribute_value_list)
+    data_dict = {}
+    data_dict[COLUMNS[0]] = cur_tag_path
+    data_dict[COLUMNS[1]] = attribute_list
+    data_dict[COLUMNS[2]] = attribute_value_list
     if cur_tag_path.split("|")[-2].strip() in SINGLE_TAGS:
         close_single_tag(cur_tag_path.split("|")[:-2])
     else:
@@ -67,7 +72,9 @@ def print_open_tag_end(ch):
             open_tag.replace("<", "")
             print("Open TAG : < :", open_tag)
             cur_tag_path += open_tag + "|"
+            data_dict[COLUMNS[0]] = cur_tag_path
             open_tag = " "
+    parsed_html_db = parsed_html_db.append(data_dict, ignore_index=True)
     attribute_list = []
     attribute_value_list = []
 
@@ -147,13 +154,19 @@ def add_tag_content(ch):
 
 
 def print_tag_content(ch):
-    global tag_content
+    global tag_content, parsed_html_db
     if tag_content == " ":
         return
     print("Tag content : ", open_tag, ":", tag_content)
+    index = len(parsed_html_db) - 1
+    if str(parsed_html_db.at[index, COLUMNS[-1]]) == 'nan':
+        parsed_html_db.at[index, COLUMNS[-1]] = tag_content
+    else:
+        parsed_html_db.at[index, COLUMNS[-1]] += tag_content
     tag_content = " "
 
-parsed_html_db = pd.DataFrame()
+
+parsed_html_db = pd.DataFrame(columns=COLUMNS)
 
 autoM = Automata()
 # Dummy data
@@ -235,3 +248,5 @@ example = open(EXAMPLE_FILE, 'r')
 data = example.read()
 
 autoM.run(data)
+print(parsed_html_db)
+parsed_html_db.to_csv("parsed_html.csv")
