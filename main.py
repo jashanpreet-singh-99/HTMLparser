@@ -17,3 +17,15 @@ data = example.read()
 
 html_2 = Parser(data)
 html_2.save_parsed_html("output/parsed_html_2.csv")
+
+element = html_2.get_element_by_id("site_name")
+print(element[0])
+
+element = html_2.get_element_by_attribute("id", "site_name")
+print(element[0])
+
+element_list = html_2.get_element_by_class("active")
+[print(x) for x in element_list]
+
+element_list = html_2.get_element_by_attribute("class", "active")
+[print(x) for x in element_list]
