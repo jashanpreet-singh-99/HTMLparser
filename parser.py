@@ -12,6 +12,9 @@ class HTMLElement:
         self.attributes = ast.literal_eval(row['attributes'])
         self.content = row['tag_content']
 
+    def get_link(self):
+        return self.attributes["href"]
+
     def __str__(self):
         return "<" + self.tag + " " + str(self.attributes)[1:-1] + ">" + str(self.content) + "</" + self.tag + ">"
 
@@ -242,12 +245,18 @@ class Parser:
     def get_element_by_class(self, element):
         return self.get_element_by_attribute("class", element)
 
+    def get_element_by_all_links(self):
+        return self.get_element_by_attribute("href", "link")
+
+
     def get_element_by_attribute(self, attri, element):
         def check_attribute(attribute):
             a_dict = ast.literal_eval(attribute)
             if attri in a_dict.keys():
                 value_list = a_dict[attri].split(" ")
                 if element in value_list:
+                    return True
+                elif element == "link":
                     return True
             return False
         if len(self.__parsed_html_db) < 1:

@@ -27,5 +27,5 @@ print(element[0])
 element_list = html_2.get_element_by_class("active")
 [print(x) for x in element_list]
 
-element_list = html_2.get_element_by_attribute("class", "active")
-[print(x) for x in element_list]
+element_list = html_2.get_element_by_all_links()
+[print(x.get_link()) for x in element_list]
