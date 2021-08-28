@@ -15,6 +15,9 @@ class HTMLElement:
     def get_link(self):
         return self.attributes["href"]
 
+    def get_img_path(self):
+        return self.attributes["src"]
+
     def __str__(self):
         return "<" + self.tag + " " + str(self.attributes)[1:-1] + ">" + str(self.content) + "</" + self.tag + ">"
 
@@ -248,7 +251,6 @@ class Parser:
     def get_element_by_all_links(self):
         return self.get_element_by_attribute("href", "link")
 
-
     def get_element_by_attribute(self, attri, element):
         def check_attribute(attribute):
             a_dict = ast.literal_eval(attribute)
@@ -263,6 +265,22 @@ class Parser:
             print("Html data not parsed. Object empty.")
             return None
         roi_db = self.__parsed_html_db[self.__parsed_html_db[self.__COLUMNS[1]].apply(check_attribute)]
+        element_list = []
+        for _,row in roi_db.iterrows():
+            element_list.append(HTMLElement(row))
+        return element_list
+
+
+    def get_images(self):
+        def check_img_tag(value):
+            t_list = value.split("|")
+            if len(t_list) > 2 and t_list[-2] == "img":
+                return True
+            return False
+        if len(self.__parsed_html_db) < 1:
+            print("Html data not parsed. Object empty.")
+            return None
+        roi_db = self.__parsed_html_db[self.__parsed_html_db[self.__COLUMNS[0]].apply(check_img_tag)]
         element_list = []
         for _,row in roi_db.iterrows():
             element_list.append(HTMLElement(row))

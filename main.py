@@ -29,3 +29,6 @@ element_list = html_2.get_element_by_class("active")
 
 element_list = html_2.get_element_by_all_links()
 [print(x.get_link()) for x in element_list]
+
+imgs = html_2.get_images()
+[print(x.get_img_path()) for x in imgs]
