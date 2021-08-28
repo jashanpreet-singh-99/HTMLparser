@@ -241,21 +241,6 @@ class Parser:
 
     def get_element_by_class(self, element):
         return self.get_element_by_attribute("class", element)
-        # def check_attribute(attribute):
-        #     a_dict = ast.literal_eval(attribute)
-        #     if "class" in a_dict.keys():
-        #         classes_list = a_dict['class'].split(" ")
-        #         if element in classes_list:
-        #             return True
-        #     return False
-        # if len(self.__parsed_html_db) < 1:
-        #     print("Html data not parsed. Object empty.")
-        #     return None
-        # roi_db = self.__parsed_html_db[self.__parsed_html_db[self.__COLUMNS[1]].apply(check_attribute)]
-        # element_list = []
-        # for _,row in roi_db.iterrows():
-        #     element_list.append(HTMLElement(row))
-        # return element_list
 
     def get_element_by_attribute(self, attri, element):
         def check_attribute(attribute):
